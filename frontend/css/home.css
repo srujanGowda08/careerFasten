@@ -8,6 +8,7 @@
 
   /*========== Colors ==========*/
   --first-color: #6923d0;
+  --blue-button-color: #b085f1
   --first-color-light: #f4f0fa;
   --title-color: #19181b;
   --text-color: #58555e;
@@ -83,6 +84,7 @@ img {
   align-items: center;
   height: var(--header-height);
   justify-content: space-between;
+  
 }
 
 .header__img {
@@ -167,6 +169,13 @@ img {
 .nav__list {
   row-gap: 2.5rem;
 }
+#user{
+  color: red;
+  font-size: 20px;
+}
+.header__logo{
+  font-size: 40px;
+}
 
 .nav__items {
   row-gap: 1.5rem;
@@ -201,7 +210,7 @@ img {
 }
 
 .nav__logout {
-  margin-top: 5rem;
+  margin-top: 280px;
 }
 
 /* Dropdown */
