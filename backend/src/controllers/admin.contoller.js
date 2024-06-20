@@ -1,6 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js"
-import { User} from "../models/user.model.js"
+import { Admin} from "../models/admin.model.js"
 // import {uploadOnCloudinary} from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 
 const generateAccessAndRefreshTokens = async(userId) => {
     try {
-        const user = await User.findById(userId)
+        const user = await Admin.findById(userId)
         if(!user){
             throw new ApiError(404, "user not found")
         }
@@ -27,10 +27,10 @@ const generateAccessAndRefreshTokens = async(userId) => {
     }
 }
 
-const loginUser = asyncHandler( async (req, res) => {
-    const { usn, password } = req.body
+const loginAdmin = asyncHandler( async (req, res) => {
+    const { adminId, password } = req.body
 
-    if(!usn){
+    if(!adminId){
         throw new ApiError(400, "usn is required")
     }
 
@@ -38,7 +38,7 @@ const loginUser = asyncHandler( async (req, res) => {
         throw new ApiError(400, "password is required");
     }
 
-    const user = await User.findOne({ usn: usn })
+    const user = await Admin.findOne({ userId: adminId })
 
     if(!user){
         throw new ApiError(404, "user does not exist")
@@ -50,7 +50,7 @@ const loginUser = asyncHandler( async (req, res) => {
 
     const { accessToken, refreshToken }  = await generateAccessAndRefreshTokens(user._id)
 
-    const loggedInUser =  await User.findById(user._id).select("-password -refreshToken")
+    const loggedInUser =  await Admin.findById(user._id).select("-password -refreshToken")
 
     const options = {
         httpOnly: true,
@@ -71,8 +71,8 @@ const loginUser = asyncHandler( async (req, res) => {
     )
 })    
 
-const logoutUser = asyncHandler( async (req, res) => {
-    await User.findByIdAndUpdate(
+const logoutAdmin = asyncHandler( async (req, res) => {
+    await Admin.findByIdAndUpdate(
         req.user._id,
         {
             $unset: {
@@ -104,7 +104,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     try {
         const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
         
-        const user = await User.findById(decodedToken?._id)
+        const user = await Admin.findById(decodedToken?._id)
     
         if(!user){
             throw new ApiError(401, "Invalid refresh token ")
@@ -134,13 +134,14 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
             )
         )
     } catch (error) {
+        console.log(error)
         throw new ApiError(401, error?.message || "Invalid refresh token")
     }
 
 })
 
 export { 
-    loginUser,
-    logoutUser,
+    loginAdmin,
+    logoutAdmin,
     refreshAccessToken
  }
