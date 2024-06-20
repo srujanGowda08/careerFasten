@@ -8,7 +8,7 @@
 
   /*========== Colors ==========*/
   --first-color: #6923d0;
-  --blue-button-color: #b085f1
+  --blue-button-color: #b085f1;
   --first-color-light: #f4f0fa;
   --title-color: #19181b;
   --text-color: #58555e;
@@ -84,7 +84,6 @@ img {
   align-items: center;
   height: var(--header-height);
   justify-content: space-between;
-  
 }
 
 .header__img {
@@ -110,7 +109,11 @@ img {
   width: 100%;
   border: none;
   outline: none;
-  background-color: var(--first-color-light);
+  padding: 5px;
+  background-color: rgb(85, 196, 173);
+  font-weight: 700;
+  font-size: 20px;
+  color: white;
 }
 
 .header__input::placeholder {
@@ -169,11 +172,10 @@ img {
 .nav__list {
   row-gap: 2.5rem;
 }
-#user{
-  color: red;
-  font-size: 20px;
+.user {
+  text-align: center;
 }
-.header__logo{
+.header__logo {
   font-size: 40px;
 }
 
