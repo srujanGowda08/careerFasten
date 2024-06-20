@@ -12,6 +12,7 @@ const showMenu = (headerToggle, navbarId) => {
       toggleBtn.classList.toggle("bx-x");
     });
   }
+  
 };
 showMenu("header-toggle", "navbar");
 
