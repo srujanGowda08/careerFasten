@@ -6,20 +6,20 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 
-const generateAccessAndRefreshTokens = async(userId) => {
+const generateAccessAndRefreshTokens = async(adminId) => {
     try {
-        const user = await Admin.findById(userId)
+        const user = await Admin.findById(adminId)
         if(!user){
             throw new ApiError(404, "user not found")
         }
 
-        const accessToken = user.generateAccessToken()
+        const accessTokenAdmin = user.generateAccessToken()
         const refreshToken =  user.generateRefreshToken()
 
         user.refreshToken = refreshToken
         await user.save()
 
-        return { accessToken, refreshToken }
+        return { accessTokenAdmin, refreshToken }
 
     } catch (error) {
         console.log(error)
@@ -38,7 +38,7 @@ const loginAdmin = asyncHandler( async (req, res) => {
         throw new ApiError(400, "password is required");
     }
 
-    const user = await Admin.findOne({ userId: adminId })
+    const user = await Admin.findOne({ adminId: adminId })
 
     if(!user){
         throw new ApiError(404, "user does not exist")
@@ -96,13 +96,13 @@ const logoutAdmin = asyncHandler( async (req, res) => {
 })
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
-    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
+    const incomingRefreshToken = req.cookies.refreshTokenAdmin || req.body.refreshToken
     if(!incomingRefreshToken){
         throw new ApiError(401, "Unauthorized access")
     }
 
     try {
-        const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+        const decodedToken = jwt.verify(incomingRefreshToken, process.env.ADMIN_REFRESH_TOKEN_SECRET)
         
         const user = await Admin.findById(decodedToken?._id)
     
@@ -119,16 +119,16 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
             secure: true
         }
     
-        const {accessToken, newRefreshToken} = await generateAccessAndRefreshTokens(user._id)
+        const {accessTokenAdmin,refreshToken: newRefreshToken} = await generateAccessAndRefreshTokens(user._id)
     
         return res.status(200)
-        .cookie("accessToken", accessToken, options)
+        .cookie("accessToken", accessTokenAdmin, options)
         .cookie("refreshToken", newRefreshToken, options)
         .json(
             new ApiResponse(
                 200,
                 {
-                    accessToken, refreshToken: newRefreshToken
+                    accessTokenAdmin, refreshToken: newRefreshToken
                 },
                 "Access token refreshed" 
             )
