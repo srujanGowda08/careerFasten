@@ -19,8 +19,10 @@ app.use(cookieParser());
 
 import userRouter from "./routes/user.route.js";
 import adminRouter from "./routes/admin.route.js";
+import feedbackRouter from "./routes/feedback.route.js";
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/admins", adminRouter);
+app.use("/api/v1/feedbacks", feedbackRouter);
 
 export { app };

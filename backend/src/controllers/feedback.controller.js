@@ -6,24 +6,28 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 
 
 const newFeedback = asyncHandler(async (req, res) => {
-    const { email, content } = req.body
+    const { email, content, userName } = req.body;
 
-    if(!email){
-        throw new ApiError(400, "email is required")
+    if (!email) {
+        throw new ApiError(400, "Email is required");
     }
 
     if (!content) {
-        throw new ApiError(400, "content is required");
+        throw new ApiError(400, "Content is required");
     }
 
-    const newFeedback = new Feedback({
+    if (!userName) {
+        throw new ApiError(400, "UserName is required");
+    }
+
+    const feedback = new Feedback({
         email: email,
-        content: content
-    })
+        content: content,
+        userName: userName
+    });
 
     try {
-        const savedFeedback = await newFeedback.save();
-
+        const savedFeedback = await feedback.save();
         return res.status(201).json(
             new ApiResponse(
                 201,
@@ -32,9 +36,11 @@ const newFeedback = asyncHandler(async (req, res) => {
             )
         );
     } catch (error) {
+        console.error(error); 
         throw new ApiError(500, "Something went wrong while adding feedback");
     }
 });
+
 
 const getFeedbackById = asyncHandler(async (req, res) => {
     const feedbackId = req.params._id;
@@ -102,10 +108,46 @@ const deleteFeedback = asyncHandler(async (req, res) => {
     }
 })
 
+const updateFeedback = asyncHandler(async (req, res) => {
+    const { content } = req.body;
+    const feedbackId = req.params._id;
+
+    try {
+        const feedback = await Feedback.findByIdAndUpdate(
+            feedbackId,
+            {
+                $set:{
+                    content: content
+                }
+            },
+            {
+                new: true
+            }
+        );
+
+        if (!feedback) {
+            throw new ApiError(404, "Feedback not found");
+        }
+
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                feedback,
+                "Feedback updated successfully"
+            )
+        );
+    } catch (error) {
+        console.error("Error while updating feedback:", error.message);
+        throw new ApiError(500, "Something went wrong while updating feedback");
+    }
+})    
+
+
 
 export { 
     newFeedback,
     getAllFeedback,
     getFeedbackById,
-    deleteFeedback 
+    deleteFeedback,
+    updateFeedback 
 }
