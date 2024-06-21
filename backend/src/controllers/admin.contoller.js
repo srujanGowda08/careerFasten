@@ -27,49 +27,46 @@ const generateAccessAndRefreshTokens = async(adminId) => {
     }
 }
 
-const loginAdmin = asyncHandler( async (req, res) => {
-    const { adminId, password } = req.body
+const loginAdmin = asyncHandler(async (req, res) => {
+    const { adminId, password } = req.body;
 
-    if(!adminId){
-        throw new ApiError(400, "usn is required")
+    if (!adminId) {
+        throw new ApiError(400, "Admin ID is required");
     }
 
     if (!password) {
-        throw new ApiError(400, "password is required");
+        throw new ApiError(400, "Password is required");
     }
 
-    const user = await Admin.findOne({ adminId: adminId })
+    const user = await Admin.findOne({ adminId });
 
-    if(!user){
-        throw new ApiError(404, "user does not exist")
+    if (!user) {
+        throw new ApiError(404, "User does not exist");
     }
 
     if (password !== user.password) {
         throw new ApiError(401, "Invalid password");
     }
 
-    const { accessToken, refreshToken }  = await generateAccessAndRefreshTokens(user._id)
+    const { accessTokenAdmin, refreshToken } = await generateAccessAndRefreshTokens(user._id);
 
-    const loggedInUser =  await Admin.findById(user._id).select("-password -refreshToken")
+    const loggedInUser = await Admin.findById(user._id).select("-password -refreshToken");
 
     const options = {
         httpOnly: true,
-        secure: true
-    }
+        secure: true // Adjust according to your needs
+    };
 
     return res.status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-        new ApiResponse(
+        .cookie("accessTokenAdmin", accessTokenAdmin, options)
+        .cookie("refreshTokenAdmin", refreshToken, options)
+        .json(new ApiResponse(
             200,
-            {
-                user: loggedInUser, accessToken, refreshToken
-            },
-            "Login successfull"
-        )
-    )
-})    
+            { user: loggedInUser, accessTokenAdmin, refreshToken },
+            "Login successful"
+        ));
+});
+
 
 const logoutAdmin = asyncHandler( async (req, res) => {
     await Admin.findByIdAndUpdate(
